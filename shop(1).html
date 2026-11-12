@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glamour Bridge – Online Cosmetics Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#5bb8f0; --sky-dark:#2f8fcf; --sky-soft:#e8f5fd;
+    --pink:#ff6fa5; --pink-dark:#e04a85; --pink-soft:#fff0f6;
+    --ink:#24323f; --muted:#6f7f8d; --line:#e3eef6; --white:#fff;
+    --grad:linear-gradient(135deg,var(--sky),var(--pink));
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Poppins','Hind Siliguri',sans-serif;color:var(--ink);background:#fff;line-height:1.65}
+  a{text-decoration:none;color:inherit}
+  h1,h2,.logo{font-family:'Playfair Display','Hind Siliguri',serif}
+  .container{max-width:1150px;margin:0 auto;padding:0 16px}
+
+  .topbar{background:var(--grad);color:#fff;text-align:center;font-size:13.5px;padding:7px 10px}
+
+  header{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:12px}
+  .logo{font-size:26px;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.3px}
+  .menu{display:flex;gap:24px;font-weight:500;font-size:15px}
+  .menu a{position:relative}
+  .menu a:hover{color:var(--pink-dark)}
+  .cart-btn{background:var(--grad);color:#fff;border:none;border-radius:30px;padding:9px 20px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(91,184,240,.4)}
+  .badge{background:#fff;color:var(--pink-dark);border-radius:50%;padding:0 7px;margin-left:6px;font-size:13px}
+
+  .hero{background:radial-gradient(circle at 15% 20%,var(--sky-soft),transparent 55%),radial-gradient(circle at 90% 80%,var(--pink-soft),transparent 55%),#fff;padding:70px 0 80px}
+  .hero-in{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center}
+  .eyebrow{display:inline-block;background:var(--sky-soft);color:var(--sky-dark);font-weight:600;font-size:13px;padding:4px 14px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:50px;line-height:1.18;margin-bottom:14px}
+  .hero h1 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--muted);font-size:17px;margin-bottom:26px;max-width:480px}
+  .btn{display:inline-block;background:var(--grad);color:#fff;padding:13px 30px;border-radius:30px;font-weight:600;border:none;font-family:inherit;font-size:15.5px;cursor:pointer;box-shadow:0 6px 16px rgba(255,111,165,.35);transition:.2s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.outline{background:#fff;color:var(--sky-dark);border:2px solid var(--sky);box-shadow:none;margin-left:8px}
+  .hero-art{position:relative;height:300px}
+  .blob{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(91,184,240,.25)}
+  .b1{width:230px;height:230px;background:var(--sky-soft);font-size:110px;left:20%;top:10px}
+  .b2{width:150px;height:150px;background:var(--pink-soft);font-size:70px;right:6%;bottom:0;box-shadow:0 14px 30px rgba(255,111,165,.25)}
+  .b3{width:90px;height:90px;background:#fff;font-size:42px;left:6%;bottom:20px;border:2px solid var(--line)}
+
+  .features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:-36px auto 0;position:relative}
+  .feat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 10px;text-align:center;font-size:13.5px;font-weight:500;box-shadow:0 6px 18px rgba(47,143,207,.08)}
+  .feat b{display:block;font-size:26px}
+
+  section{padding:60px 0}
+  .title{text-align:center;margin-bottom:30px}
+  .title h2{font-size:34px}
+  .title h2 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .title p{color:var(--muted)}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:30px}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:30px;padding:7px 20px;font-family:inherit;font-size:14.5px;cursor:pointer;color:var(--ink)}
+  .chip.active,.chip:hover{background:var(--grad);color:#fff;border-color:transparent}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.25s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-5px);box-shadow:0 14px 28px rgba(91,184,240,.2)}
+  .thumb{height:180px;display:flex;align-items:center;justify-content:center;font-size:76px;background:linear-gradient(135deg,var(--sky-soft),var(--pink-soft));position:relative}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .tag{position:absolute;top:10px;left:10px;background:var(--pink);color:#fff;font-size:12px;padding:2px 11px;border-radius:20px;font-weight:500}
+  .info{padding:14px;display:flex;flex-direction:column;flex:1}
+  .info small{color:var(--sky-dark);font-weight:500;font-size:12.5px}
+  .info h3{font-size:15.5px;margin:2px 0;font-weight:600}
+  .price{margin:8px 0 12px;font-weight:600;color:var(--pink-dark);font-size:18px}
+  .price s{color:var(--muted);font-weight:400;font-size:13.5px;margin-left:6px}
+  .info button{margin-top:auto;background:#fff;color:var(--sky-dark);border:1.5px solid var(--sky);border-radius:12px;padding:9px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:.2s}
+  .info button:hover{background:var(--grad);color:#fff;border-color:transparent}
+
+  .about{background:linear-gradient(180deg,var(--sky-soft),#fff)}
+  .about-in{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+  .about h2{font-size:32px;margin-bottom:12px}
+  .about p{color:var(--muted);margin-bottom:12px}
+  .contact-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 10px 26px rgba(255,111,165,.12)}
+  .contact-box h3{margin-bottom:12px;font-family:'Playfair Display',serif;font-size:22px}
+  .contact-box p{margin-bottom:8px}
+  footer{background:var(--ink);color:#d6e3ee;text-align:center;padding:26px 10px;font-size:14px}
+  footer b{color:var(--pink)}
+
+  .overlay{position:fixed;inset:0;background:rgba(20,40,60,.45);display:none;z-index:90}
+  .overlay.show{display:block}
+  .drawer{position:fixed;top:0;right:-430px;width:400px;max-width:100%;height:100%;background:#fff;z-index:100;transition:.3s;display:flex;flex-direction:column}
+  .drawer.open{right:0}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line);font-size:20px;font-weight:600;font-family:'Playfair Display','Hind Siliguri',serif}
+  .drawer-head button{background:none;border:none;font-size:28px;cursor:pointer}
+  .items{flex:1;overflow:auto;padding:12px 18px}
+  .item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .item .em{font-size:30px;background:var(--sky-soft);border-radius:12px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+  .item .em img{width:100%;height:100%;object-fit:cover}
+  .item .d{flex:1;font-size:14px}
+  .qty{display:flex;align-items:center;gap:8px;margin-top:4px}
+  .qty button{width:26px;height:26px;border-radius:50%;border:1px solid var(--sky);background:#fff;color:var(--sky-dark);cursor:pointer;font-size:16px;line-height:1}
+  .empty{text-align:center;color:var(--muted);margin-top:60px}
+  .checkout{padding:16px 18px;border-top:1px solid var(--line)}
+  .total{display:flex;justify-content:space-between;font-weight:600;font-size:18px;margin-bottom:12px}
+  .checkout input,.checkout textarea{width:100%;padding:10px 12px;margin-bottom:8px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px}
+  .checkout input:focus,.checkout textarea:focus{outline:none;border-color:var(--sky)}
+  .checkout .btn{width:100%;text-align:center}
+
+  .wa{position:fixed;bottom:18px;left:18px;background:#25d366;color:#fff;border-radius:30px;padding:10px 18px;font-weight:600;font-size:14px;z-index:40;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 22px;border-radius:30px;opacity:0;pointer-events:none;transition:.3s;z-index:120;font-size:14px}
+  .toast.show{opacity:1}
+
+  @media(max-width:900px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .hero-in,.about-in{grid-template-columns:1fr}
+    .hero h1{font-size:36px}
+    .hero-art{height:230px}
+    .b1{width:170px;height:170px;font-size:80px;left:15%}
+    .features{grid-template-columns:repeat(2,1fr)}
+    .menu{display:none}
+  }
+  @media(max-width:480px){.grid{gap:12px}.thumb{height:130px;font-size:56px}.info{padding:10px}.logo{font-size:22px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">🚚 ঢাকায় ডেলিভারি ৬০৳ · সারা দেশে ১২০৳ · Free delivery on orders over ৳1500</div>
+
+<header>
+  <div class="container nav">
+    <a href="#home" class="logo">Glamour Bridge</a>
+    <nav class="menu">
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="cart-btn" onclick="toggleCart(true)">🛒 Cart <span class="badge" id="count">0</span></button>
+  </div>
+</header>
+
+<div class="hero" id="home">
+  <div class="container hero-in">
+    <div>
+      <span class="eyebrow">✨ 100% Original Beauty Products</span>
+      <h1>Where <em>Beauty</em> Meets Confidence</h1>
+      <p>স্কিনকেয়ার, মেকআপ, হেয়ারকেয়ার ও পারফিউম – সব এক জায়গায়। ক্যাশ অন ডেলিভারিতে ঘরে বসেই পেয়ে যান আপনার পছন্দের প্রোডাক্ট।</p>
+      <a href="#products" class="btn">Shop Now</a>
+      <a href="#contact" class="btn outline">Contact Us</a>
+    </div>
+    <div class="hero-art">
+      <div class="blob b1">💄</div>
+      <div class="blob b2">🌸</div>
+      <div class="blob b3">✨</div>
+    </div>
+  </div>
+</div>
+
+<div class="container features">
+  <div class="feat"><b>✅</b>100% Original</div>
+  <div class="feat"><b>🚚</b>দ্রুত ডেলিভারি</div>
+  <div class="feat"><b>💵</b>Cash on Delivery</div>
+  <div class="feat"><b>🔄</b>৭ দিনে রিটার্ন</div>
+</div>
+
+<section id="products">
+  <div class="container">
+    <div class="title"><h2>Our <span>Collection</span></h2><p>আপনার পছন্দের ক্যাটাগরি বেছে নিন</p></div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="container about-in">
+    <div>
+      <h2>About <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">Glamour Bridge</span></h2>
+      <p>Glamour Bridge একটি বিশ্বস্ত অনলাইন কসমেটিকস শপ। আমরা নির্ভরযোগ্য উৎস থেকে অরিজিনাল পণ্য সংগ্রহ করি, যাতে আপনি নিশ্চিন্তে কেনাকাটা করতে পারেন।</p>
+      <p>Any problem with your product? ৭ দিনের মধ্যে বদলে দেওয়ার সুযোগ আছে। Your satisfaction is our priority.</p>
+    </div>
+    <div class="contact-box" id="contact">
+      <h3>📞 Contact Us</h3>
+      <p>WhatsApp / Phone: <b>01957208646</b></p>
+      <p>Email: <b>info@glamourbridge.com</b></p>
+      <p>Address: <b>আপনার ঠিকানা, ঢাকা</b></p>
+      <p>Hours: <b>প্রতিদিন সকাল ১০টা – রাত ১০টা</b></p>
+    </div>
+  </div>
+</section>
+
+<footer>© <span id="yr"></span> <b>Glamour Bridge</b>. All rights reserved.</footer>
+
+<a class="wa" id="waLink" href="#" target="_blank" rel="noopener">💬 WhatsApp Us</a>
+
+<div class="overlay" id="overlay" onclick="toggleCart(false)"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">Your Cart <button onclick="toggleCart(false)">×</button></div>
+  <div class="items" id="items"></div>
+  <div class="checkout" id="checkout">
+    <div class="total"><span>Total</span><span id="total">৳0</span></div>
+    <input id="cName" placeholder="আপনার নাম / Your name">
+    <input id="cPhone" placeholder="মোবাইল নম্বর / Phone">
+    <textarea id="cAddr" rows="2" placeholder="সম্পূর্ণ ঠিকানা / Full address"></textarea>
+    <button class="btn" onclick="placeOrder()">Order via WhatsApp</button>
+  </div>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script>
+  // ================= SETTINGS =================
+  const WHATSAPP  = "8801957208646";   // 01957208646 (দেশের কোড 880 সহ)
+  const SHOP_NAME = "Glamour Bridge";
+
+  // ================= PRODUCTS =================
+  // নতুন পণ্য যোগ করতে নিচের লাইনগুলো কপি করে নতুন id দিয়ে বসান।
+  // img: "" রাখলে emoji দেখাবে; ছবি থাকলে "images/serum.jpg" লিখুন।
+  // old: আগের দাম (ছাড় দেখাতে), না থাকলে 0।  tag: ব্যাজ (ঐচ্ছিক)
+  const products = [
+    {id:1,  name:"Vitamin C Face Serum",   cat:"Skincare",  price:850,  old:1100, emoji:"🧴", img:"", tag:"New"},
+    {id:2,  name:"Moisturizing Cream",     cat:"Skincare",  price:620,  old:0,    emoji:"🫙", img:""},
+    {id:3,  name:"Sunscreen SPF 50",       cat:"Skincare",  price:700,  old:850,  emoji:"☀️", img:"", tag:"Popular"},
+    {id:4,  name:"Gentle Face Wash",       cat:"Skincare",  price:380,  old:0,    emoji:"🧼", img:""},
+    {id:5,  name:"Matte Lipstick",         cat:"Makeup",    price:450,  old:550,  emoji:"💄", img:"", tag:"Sale"},
+    {id:6,  name:"Smudge-proof Kajal",     cat:"Makeup",    price:220,  old:0,    emoji:"✏️", img:""},
+    {id:7,  name:"Liquid Foundation",      cat:"Makeup",    price:950,  old:0,    emoji:"🎨", img:""},
+    {id:8,  name:"Eyeshadow Palette",      cat:"Makeup",    price:1200, old:1500, emoji:"🌈", img:"", tag:"Sale"},
+    {id:9,  name:"Herbal Hair Oil",        cat:"Haircare",  price:360,  old:0,    emoji:"🌿", img:""},
+    {id:10, name:"Shampoo & Conditioner",  cat:"Haircare",  price:780,  old:950,  emoji:"🧴", img:"", tag:"Combo"},
+    {id:11, name:"Floral Perfume",         cat:"Perfume",   price:1450, old:0,    emoji:"🌸", img:"", tag:"Popular"},
+    {id:12, name:"Body Mist",              cat:"Perfume",   price:520,  old:0,    emoji:"💨", img:""}
+  ];
+  // ============================================
+
+  const money = n => "৳" + n.toLocaleString("en-US");
+  let cart = [];
+  try { cart = JSON.parse(localStorage.getItem("gb_cart") || "[]"); } catch(e){}
+  let activeCat = "All";
+  const save = () => { try{ localStorage.setItem("gb_cart", JSON.stringify(cart)); }catch(e){} };
+  const pic = p => p.img ? `<img src="${p.img}" alt="${p.name}">` : p.emoji;
+
+  function renderFilters(){
+    const cats = ["All", ...new Set(products.map(p => p.cat))];
+    document.getElementById("filters").innerHTML = cats.map(c =>
+      `<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</button>`).join("");
+  }
+  function setCat(c){ activeCat = c; renderFilters(); renderProducts(); }
+
+  function renderProducts(){
+    const list = products.filter(p => activeCat==="All" || p.cat===activeCat);
+    document.getElementById("grid").innerHTML = list.map(p => `
+      <div class="card">
+        <div class="thumb">${pic(p)}${p.tag?`<span class="tag">${p.tag}</span>`:""}</div>
+        <div class="info">
+          <small>${p.cat}</small>
+          <h3>${p.name}</h3>
+          <div class="price">${money(p.price)}${p.old?`<s>${money(p.old)}</s>`:""}</div>
+          <button onclick="addToCart(${p.id})">Add to Cart</button>
+        </div>
+      </div>`).join("");
+  }
+
+  function addToCart(id){
+    const f = cart.find(i => i.id===id);
+    if(f) f.q++; else cart.push({id, q:1});
+    save(); renderCart(); toast("কার্টে যোগ হয়েছে ✔ Added to cart");
+  }
+  function changeQty(id, d){
+    const f = cart.find(i => i.id===id); if(!f) return;
+    f.q += d; if(f.q<=0) cart = cart.filter(i => i.id!==id);
+    save(); renderCart();
+  }
+  function renderCart(){
+    cart = cart.filter(i => products.find(p => p.id===i.id));
+    const box = document.getElementById("items");
+    let total = 0, count = 0;
+    if(!cart.length){
+      box.innerHTML = '<div class="empty">🛍️<br>আপনার কার্ট খালি<br><small>Your cart is empty</small></div>';
+      document.getElementById("checkout").style.display = "none";
+    } else {
+      document.getElementById("checkout").style.display = "block";
+      box.innerHTML = cart.map(i => {
+        const p = products.find(x => x.id===i.id); total += p.price*i.q; count += i.q;
+        return `<div class="item"><div class="em">${pic(p)}</div>
+          <div class="d"><b>${p.name}</b><br>${money(p.price)}
+            <div class="qty"><button onclick="changeQty(${p.id},-1)">−</button>${i.q}<button onclick="changeQty(${p.id},1)">+</button></div>
+          </div><b>${money(p.price*i.q)}</b></div>`;
+      }).join("");
+    }
+    document.getElementById("total").textContent = money(total);
+    document.getElementById("count").textContent = count;
+  }
+  function toggleCart(open){
+    document.getElementById("drawer").classList.toggle("open", open);
+    document.getElementById("overlay").classList.toggle("show", open);
+  }
+  function placeOrder(){
+    const name = document.getElementById("cName").value.trim();
+    const phone = document.getElementById("cPhone").value.trim();
+    const addr = document.getElementById("cAddr").value.trim();
+    if(!name || !phone || !addr){ toast("নাম, মোবাইল ও ঠিকানা দিন"); return; }
+    let total = 0;
+    const lines = cart.map(i => { const p = products.find(x => x.id===i.id); total += p.price*i.q;
+      return `• ${p.name} × ${i.q} = ${p.price*i.q} টাকা`; }).join("\n");
+    const msg = `New Order – ${SHOP_NAME}\n\n${lines}\n\nMot / Total: ${total} টাকা (ডেলিভারি চার্জ আলাদা)\n\nনাম: ${name}\nমোবাইল: ${phone}\nঠিকানা: ${addr}`;
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+  }
+  function toast(t){
+    const el = document.getElementById("toast"); el.textContent = t; el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 1600);
+  }
+
+  document.getElementById("waLink").href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("আসসালামু আলাইকুম, আমি কিছু জানতে চাই।")}`;
+  document.getElementById("yr").textContent = new Date().getFullYear();
+  renderFilters(); renderProducts(); renderCart();
+</script>
+</body>
+</html>
