@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hasantonmoy1830.github.io/glammour-bridge/sitemap.xml
