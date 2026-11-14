@@ -26,7 +26,7 @@ $("signupBtn").onclick=async()=>{const email=$("email").value.trim().toLowerCase
 $("logoutBtn").onclick=async()=>{await db.auth.signOut();location.reload()};
 db.auth.getSession().then(({data})=>{if(data.session)showApp()});
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab));$("pageTitle").textContent=b.textContent.trim().replace(/^[◫◷▤◇↻]\s*/,"")});
-$("refreshBtn").onclick=refreshAll;
+$("refreshBtn").onclick=refreshAll;setInterval(()=>{if(!$("app").classList.contains("hidden"))refreshAll()},60000);
 async function refreshAll(){await Promise.all([loadAnalytics(),loadOrders(),loadProducts()]);renderActivity()}
 function dayKey(d){return d.toISOString().slice(0,10)}
 async function loadAnalytics(){const now=new Date(),today=new Date(now);today.setHours(0,0,0,0);const week=new Date(now-7*864e5),month=new Date(now-30*864e5);const {data:events,error}=await db.from("visitor_events").select("session_id,created_at,page_path").gte("created_at",month.toISOString()).order("created_at",{ascending:true});if(error){toast("Analytics: "+error.message);return}const rows=events||[],t=rows.filter(x=>new Date(x.created_at)>=today),w=rows.filter(x=>new Date(x.created_at)>=week),live=rows.filter(x=>new Date(x.created_at)>=new Date(now-5*60*1000));$("visToday").textContent=t.length;$("visLive").textContent=new Set(live.map(x=>x.session_id)).size;$("aToday").textContent=t.length;$("aWeek").textContent=w.length;$("aMonth").textContent=rows.length;$("aUnique").textContent=new Set(rows.map(x=>x.session_id)).size;
