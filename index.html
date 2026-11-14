@@ -90,6 +90,22 @@
 <div class="modal" id="checkoutModal"><div class="modal-card" style="display:flex;flex-direction:column;max-width:490px"><div class="drawer-head"><h3>Delivery details</h3><button class="close" onclick="closeCheckout()" aria-label="Close checkout">×</button></div><form class="checkout-form" id="checkoutForm"><label for="customerName">Full name *</label><input id="customerName" required autocomplete="name" placeholder="Your name"><label for="customerPhone">Phone number *</label><input id="customerPhone" required inputmode="tel" autocomplete="tel" pattern="[0-9+() -]{8,18}" placeholder="01XXXXXXXXX"><label for="customerAddress">Full address *</label><textarea id="customerAddress" required rows="3" autocomplete="street-address" placeholder="House, road, area, district"></textarea><div class="checkout-summary" id="checkoutSummary"></div><button class="btn checkout-btn" type="submit">Continue to WhatsApp ↗</button><p style="font-size:9px;color:var(--muted)">Your order will be sent to our team through WhatsApp. We will confirm availability and delivery details.</p></form></div></div>
 <div class="toast" id="toast" role="status"></div>
 <script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const GB_SUPABASE_URL="https://djtvswtlsyvwezqvginc.supabase.co";
+const GB_SUPABASE_KEY="sb_publishable_9A7XmilY9JfhPn97TJUiEQ_S6stlSsa";
+const gbClient=window.supabase.createClient(GB_SUPABASE_URL,GB_SUPABASE_KEY);
+(function trackVisit(){
+ let sid=sessionStorage.getItem("gb_visit_session");
+ if(!sid){sid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2));sessionStorage.setItem("gb_visit_session",sid)}
+ gbClient.from("visitor_events").insert({session_id:sid,page_path:location.pathname,referrer:document.referrer||""}).then(()=>{});
+})();
+async function loadLiveProducts(){
+ const {data,error}=await gbClient.from("products").select("*").eq("is_active",true).order("created_at",{ascending:false});
+ if(error||!data||!data.length)return;
+ products.splice(0,products.length,...data.map(p=>({id:p.id,name:p.name,cat:p.category,price:Number(p.price),old:0,tag:p.stock>0?"In stock":"Out of stock",desc:p.description,img:p.image_url})));
+ renderFilters();renderProducts();renderCart();
+}
 const WHATSAPP="8801817760050";
 const products=[
 {id:1,name:"Vitamin C Face Serum",cat:"Skincare",price:850,old:1100,tag:"New",desc:"A brightening addition to your daily skincare ritual.",img:"https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=700&q=80"},
@@ -127,7 +143,7 @@ function closeCheckout(){$("checkoutModal").classList.remove("show");$("overlay"
 function updateCheckoutSummary(){const t=totals();$("checkoutSummary").innerHTML='<div><span>Order subtotal</span><b>'+money(t.subtotal)+'</b></div>'}
 function toggleMenu(){$("mobileNav").classList.toggle("show");$("menuBtn").setAttribute("aria-expanded",$("mobileNav").classList.contains("show")?"true":"false")}
 $("searchInput").addEventListener("input",renderProducts);$("sortSelect").addEventListener("change",renderProducts);
-$("checkoutForm").addEventListener("submit",e=>{e.preventDefault();if(!cart.length){toast("Your bag is empty");closeCheckout();return}const name=$("customerName").value.trim(),phone=$("customerPhone").value.trim(),address=$("customerAddress").value.trim();if(!name||!phone||!address){toast("Please complete all delivery details");return}const t=totals();const lines=cart.map(i=>{const p=products.find(x=>x.id===i.id);return"• "+p.name+" × "+i.q+" = "+money(p.price*i.q)}).join("\n");const msg="New order — Glamour Bridge\n\n"+lines+"\n\nOrder subtotal: "+money(t.subtotal)+"\n\nCustomer: "+name+"\nPhone: "+phone+"\nAddress: "+address+"\n\nPlease confirm product availability and delivery details.";window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank","noopener");closeCheckout();toast("Order details prepared for WhatsApp")});
-$("overlay").addEventListener("click",()=>{closePanels();closeCheckout()});$("year").textContent=new Date().getFullYear();renderFilters();renderProducts();renderCart();
+$("checkoutForm").addEventListener("submit",async e=>{e.preventDefault();if(!cart.length){toast("Your bag is empty");closeCheckout();return}const name=$("customerName").value.trim(),phone=$("customerPhone").value.trim(),address=$("customerAddress").value.trim();if(!name||!phone||!address){toast("Please complete all delivery details");return}const t=totals();const lines=cart.map(i=>{const p=products.find(x=>x.id===i.id);return"• "+p.name+" × "+i.q+" = "+money(p.price*i.q)}).join("\n");try{const {data:order,error:orderError}=await gbClient.from("orders").insert({customer_name:name,customer_phone:phone,customer_address:address,subtotal:t.subtotal}).select().single();if(orderError)throw orderError;const items=cart.map(i=>{const p=products.find(x=>x.id===i.id);return{order_id:order.id,product_id:typeof p.id==="string"?p.id:null,product_name:p.name,unit_price:p.price,quantity:i.q}});const {error:itemError}=await gbClient.from("order_items").insert(items);if(itemError)throw itemError}catch(err){console.error("Order database sync failed",err)}const msg="New order — Glamour Bridge\n\n"+lines+"\n\nOrder subtotal: "+money(t.subtotal)+"\n\nCustomer: "+name+"\nPhone: "+phone+"\nAddress: "+address+"\n\nPlease confirm product availability and delivery details.";window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank","noopener");closeCheckout();toast("Order details prepared for WhatsApp")});
+$("overlay").addEventListener("click",()=>{closePanels();closeCheckout()});$("year").textContent=new Date().getFullYear();renderFilters();renderProducts();renderCart();loadLiveProducts();
 </script>
 </body></html>
