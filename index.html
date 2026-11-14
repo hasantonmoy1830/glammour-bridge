@@ -154,11 +154,20 @@ $("checkoutForm").addEventListener("submit",async e=>{
  const t=totals(),fee=deliveryFee(),zone=$("deliveryZone").value,submitBtn=$("checkoutForm").querySelector('button[type="submit"]');
  submitBtn.disabled=true;submitBtn.textContent="Placing your order…";
  try{
-  const {data:order,error:orderError}=await gbClient.from("orders").insert({customer_name:name,customer_phone:phone,customer_address:address,subtotal:t.subtotal,delivery_fee:fee,delivery_zone:zone,status:"pending"}).select().single();
+  const items=cart.map(i=>{
+   const p=products.find(x=>String(x.id)===String(i.id));
+   if(!p||typeof p.id!=="string")throw new Error("A product in your bag is unavailable. Please refresh the page and try again.");
+   return{product_id:p.id,quantity:i.q};
+  });
+  const {data:order,error:orderError}=await gbClient.rpc("place_order",{
+   p_customer_name:name,
+   p_customer_phone:phone,
+   p_customer_address:address,
+   p_delivery_zone:zone,
+   p_items:items
+  });
   if(orderError)throw orderError;
-  const items=cart.map(i=>{const p=products.find(x=>String(x.id)===String(i.id));return{order_id:order.id,product_id:typeof p.id==="string"?p.id:null,product_name:p.name,unit_price:p.price,quantity:i.q}});
-  const {error:itemError}=await gbClient.from("order_items").insert(items);
-  if(itemError)throw itemError;
+  if(!order||!order.id)throw new Error("The order could not be confirmed. Please try again.");
   cart=[];saveCart();renderCart();$("checkoutForm").reset();closeCheckout();
   alert("Thank you, "+name+"! Your order has been received.\nOrder number: "+String(order.id).slice(0,8)+"\nDelivery: "+money(fee)+" ("+zone+")\nTotal payable: "+money(t.subtotal+fee)+"\nOur team will contact you at "+phone+" to confirm your order.");
   toast("Order placed successfully!");
