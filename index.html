@@ -103,7 +103,9 @@ const gbClient=window.supabase.createClient(GB_SUPABASE_URL,GB_SUPABASE_KEY);
 async function loadLiveProducts(){
  const {data,error}=await gbClient.from("products").select("*").eq("is_active",true).order("created_at",{ascending:false});
  if(error||!data||!data.length)return;
+ const previous=[...products],cartNames=cart.map(item=>({id:item.id,q:item.q,name:previous.find(p=>p.id===item.id)?.name}));
  products.splice(0,products.length,...data.map(p=>({id:p.id,name:p.name,cat:p.category,price:Number(p.price),old:0,tag:p.stock>0?"In stock":"Out of stock",desc:p.description,img:p.image_url})));
+ cart=cartNames.map(item=>{const match=products.find(p=>p.name===item.name);return match?{id:match.id,q:item.q}:null}).filter(Boolean);saveCart();
  renderFilters();renderProducts();renderCart();
 }
 const WHATSAPP="8801817760050";
