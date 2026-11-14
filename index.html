@@ -87,7 +87,7 @@
 <div class="overlay" id="overlay" onclick="closePanels()"></div>
 <aside class="drawer" id="cartDrawer" aria-label="Shopping cart"><div class="drawer-head"><h3>Your bag <span id="drawerCount" style="font:11px var(--sans);color:var(--muted)">(0)</span></h3><button class="close" onclick="closePanels()" aria-label="Close cart">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-bottom" id="cartBottom"></div></aside>
 <div class="modal" id="productModal"><div class="modal-card" id="modalContent"></div></div>
-<div class="modal" id="checkoutModal"><div class="modal-card" style="display:flex;flex-direction:column;max-width:490px"><div class="drawer-head"><h3>Delivery details</h3><button class="close" onclick="closeCheckout()" aria-label="Close checkout">×</button></div><form class="checkout-form" id="checkoutForm"><label for="customerName">Full name *</label><input id="customerName" required autocomplete="name" placeholder="Your name"><label for="customerPhone">Phone number *</label><input id="customerPhone" required inputmode="tel" autocomplete="tel" pattern="[0-9+() -]{8,18}" placeholder="01XXXXXXXXX"><label for="customerAddress">Full address *</label><textarea id="customerAddress" required rows="3" autocomplete="street-address" placeholder="House, road, area, district"></textarea><div class="checkout-summary" id="checkoutSummary"></div><button class="btn checkout-btn" type="submit">Place order</button><p style="font-size:9px;color:var(--muted)">Your order will be saved securely. Our team will contact you to confirm availability and delivery.</p></form></div></div>
+<div class="modal" id="checkoutModal"><div class="modal-card" style="display:flex;flex-direction:column;max-width:490px"><div class="drawer-head"><h3>Delivery details</h3><button class="close" onclick="closeCheckout()" aria-label="Close checkout">×</button></div><form class="checkout-form" id="checkoutForm"><label for="customerName">Full name *</label><input id="customerName" required autocomplete="name" placeholder="Your name"><label for="customerPhone">Phone number *</label><input id="customerPhone" required inputmode="tel" autocomplete="tel" pattern="[0-9+() -]{8,18}" placeholder="01XXXXXXXXX"><label for="customerAddress">Full address *</label><textarea id="customerAddress" required rows="3" autocomplete="street-address" placeholder="House, road, area, district"></textarea><label for="deliveryZone">Delivery area *</label><select id="deliveryZone" required><option value="Dhaka">Inside Dhaka — ৳70</option><option value="Outside Dhaka">Outside Dhaka — ৳120</option></select><div class="checkout-summary" id="checkoutSummary"></div><button class="btn checkout-btn" type="submit">Place order</button><p style="font-size:9px;color:var(--muted)">Your order will be saved securely. Our team will contact you to confirm availability and delivery.</p></form></div></div>
 <div class="toast" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -103,7 +103,7 @@ async function loadLiveProducts(){
  const {data,error}=await gbClient.from("products").select("*").eq("is_active",true).order("created_at",{ascending:false});
  if(error||!data||!data.length)return;
  const previous=[...products],cartNames=cart.map(item=>({id:item.id,q:item.q,name:previous.find(p=>String(p.id)===String(item.id))?.name}));
- products.splice(0,products.length,...data.map(p=>({id:p.id,name:p.name,cat:p.category,price:Number(p.price),old:0,tag:p.stock>0?"In stock":"Out of stock",desc:p.description,img:p.image_url})));
+ products.splice(0,products.length,...data.map(p=>({id:p.id,name:p.name,cat:p.category,price:Number(p.price),old:Number(p.compare_at_price||0),tag:p.stock>0?"In stock":"Out of stock",desc:p.description,img:p.image_url})));
  cart=cartNames.map(item=>{const match=products.find(p=>p.name===item.name);return match?{id:match.id,q:item.q}:null}).filter(Boolean);saveCart();
  renderFilters();renderProducts();renderCart();
 }
@@ -141,7 +141,9 @@ function closePanels(){$("cartDrawer").classList.remove("open");$("productModal"
 function showProduct(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;$("modalContent").innerHTML='<button class="modal-close" onclick="closePanels()">×</button><img src="'+p.img+'" alt="'+p.name+'"><div class="modal-copy"><span class="kicker">'+p.cat+'</span><h3>'+p.name+'</h3><div class="price-line">'+money(p.price)+(p.old?'<span class="old-price">'+money(p.old)+'</span>':'')+'</div><p>'+p.desc+'</p><p>Our team will confirm product availability and order details.</p><button class="btn" onclick="addToCart('+p.id+');closePanels()">Add to bag</button></div>';$("productModal").classList.add("show");showOverlay()}
 function startCheckout(){if(!cart.length)return;closePanels();$("checkoutModal").classList.add("show");showOverlay();updateCheckoutSummary()}
 function closeCheckout(){$("checkoutModal").classList.remove("show");$("overlay").classList.remove("show");document.body.classList.remove("lock")}
-function updateCheckoutSummary(){const t=totals();$("checkoutSummary").innerHTML='<div><span>Order subtotal</span><b>'+money(t.subtotal)+'</b></div>'}
+function deliveryFee(){return $("deliveryZone").value==="Dhaka"?70:120}
+function updateCheckoutSummary(){const t=totals(),fee=deliveryFee();$("checkoutSummary").innerHTML='<div><span>Product subtotal</span><b>'+money(t.subtotal)+'</b></div><div><span>Delivery</span><b>'+money(fee)+'</b></div><div style="font-weight:700;border-top:1px solid var(--line);padding-top:8px"><span>Total payable</span><b>'+money(t.subtotal+fee)+'</b></div>'}
+$("deliveryZone").addEventListener("change",updateCheckoutSummary);
 function toggleMenu(){$("mobileNav").classList.toggle("show");$("menuBtn").setAttribute("aria-expanded",$("mobileNav").classList.contains("show")?"true":"false")}
 $("searchInput").addEventListener("input",renderProducts);$("sortSelect").addEventListener("change",renderProducts);
 $("checkoutForm").addEventListener("submit",async e=>{
@@ -149,16 +151,16 @@ $("checkoutForm").addEventListener("submit",async e=>{
  if(!cart.length){toast("Your bag is empty");closeCheckout();return}
  const name=$("customerName").value.trim(),phone=$("customerPhone").value.trim(),address=$("customerAddress").value.trim();
  if(!name||!phone||!address){toast("Please complete all delivery details");return}
- const t=totals(),submitBtn=$("checkoutForm").querySelector('button[type="submit"]');
+ const t=totals(),fee=deliveryFee(),zone=$("deliveryZone").value,submitBtn=$("checkoutForm").querySelector('button[type="submit"]');
  submitBtn.disabled=true;submitBtn.textContent="Placing your order…";
  try{
-  const {data:order,error:orderError}=await gbClient.from("orders").insert({customer_name:name,customer_phone:phone,customer_address:address,subtotal:t.subtotal,status:"pending"}).select().single();
+  const {data:order,error:orderError}=await gbClient.from("orders").insert({customer_name:name,customer_phone:phone,customer_address:address,subtotal:t.subtotal,delivery_fee:fee,delivery_zone:zone,status:"pending"}).select().single();
   if(orderError)throw orderError;
   const items=cart.map(i=>{const p=products.find(x=>String(x.id)===String(i.id));return{order_id:order.id,product_id:typeof p.id==="string"?p.id:null,product_name:p.name,unit_price:p.price,quantity:i.q}});
   const {error:itemError}=await gbClient.from("order_items").insert(items);
   if(itemError)throw itemError;
   cart=[];saveCart();renderCart();$("checkoutForm").reset();closeCheckout();
-  alert("Thank you, "+name+"! Your order has been received.\nOrder number: "+String(order.id).slice(0,8)+"\nOur team will contact you at "+phone+" to confirm your order.");
+  alert("Thank you, "+name+"! Your order has been received.\nOrder number: "+String(order.id).slice(0,8)+"\nDelivery: "+money(fee)+" ("+zone+")\nTotal payable: "+money(t.subtotal+fee)+"\nOur team will contact you at "+phone+" to confirm your order.");
   toast("Order placed successfully!");
  }catch(err){
   console.error("Order submission failed",err);
